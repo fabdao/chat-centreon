@@ -4,3 +4,6 @@ dist/
 
 # JetBrains IDE
 .idea/
+
+#Local DataBase
+users/
