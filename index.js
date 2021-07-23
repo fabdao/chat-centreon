@@ -1,10 +1,9 @@
-import readlineSync from 'readline-sync';
 
 import CONFIG from './config/backend.js';
 import askConfig from './src/askConfig.js';
 import { Users } from './src/users.js';
 
-let isNewUser = false;
+console.clear();
 
 //Default backend config from config file binded into global variables
 global.dbHost = CONFIG.dbHost;
@@ -12,14 +11,17 @@ global.dbPort = CONFIG.dbPort;
 global.dbLogin = CONFIG.dbLogin;
 global.dbPassword = CONFIG.dbPassword;
 
-//Eventual rebinding for config variables
+//Asking for eventual rebinding for config variables
 askConfig();
 
 let users = new Users( global.dbHost, global.dbPort, global.dbLogin, global.dbPassword );
 
+users.login().then(() => {
+     users.populateTable().then(() => {
+          users.print();
+     });
+});
 
-
-users.print();
 
 //users.createUser('spoinky', 'Spoinky');
 
