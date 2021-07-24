@@ -1,3 +1,4 @@
+import process from 'process';
 
 import CONFIG from './config/backend.js';
 import askConfig from './src/askConfig.js';
@@ -11,32 +12,40 @@ global.dbPort = CONFIG.dbPort;
 global.dbLogin = CONFIG.dbLogin;
 global.dbPassword = CONFIG.dbPassword;
 
-//Asking for eventual rebinding for config variables
+// Asking for eventual rebinding for config variables
 askConfig();
 
+// Init Super class
 let users = new Users( global.dbHost, global.dbPort, global.dbLogin, global.dbPassword );
 
-users.login().then(() => {
-     users.populateTable().then(() => {
-          users.print();
-     });
+//@todo
+//import fs from 'fs';
+//fs.writeFileSync('./logs/connexion123', new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }) +'\n');
+
+// Register logout process when the process exit with ctrl+D or else....
+[`exit`, `SIGINT`, `SIGUSR1`, `SIGUSR2`, `uncaughtException`, `SIGTERM`].forEach((eventType) => {
+    process.on(eventType, () => {
+        users.updateUser({
+            connected : false
+        }).then(() => {
+            process.exit();
+        });
+    });
 });
 
+//Login process
+users.login().then(() => {
+    //Update connected flag and new arrival time
+    users.updateUser({
+        connected : true,
+        "lastMessageTime" : new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })
+    }).then(() => {
+        //Hydrate the users table see who is connected or late to the daily scrum...
+        users.populateTable().then(() => {
+            //Display the new user tab...
+            users.print();
+        });
+    });
+});
 
-//users.createUser('spoinky', 'Spoinky');
-
-// console.log(users.checkLogin('spoinky'));
-// console.log(users.checkLogin('012345678901234567890'));
-// console.log( await users.checkUser('spoinky'));
-// console.log( await users.checkUser('spoinky1234'));
-// users.fetchAllUsers().then((result) => {console.log(result)});
-
-//console.log(global);
-
-// intro().then( () => {
-//     console.warn('then intro main file');
-// });
-//
-// console.warn('after intro main file');
-// //console.log(global);
 

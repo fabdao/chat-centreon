@@ -1,0 +1,6 @@
+# Mini rustine pour conserver le dossier de logs vide et versionné
+
+# Ignore everything in this directory
+*
+# Except this file
+!.gitignore

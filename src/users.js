@@ -15,13 +15,9 @@ export class Users
         this.initDB( dbHost, dbPort, dbLogin, dbPassword );
 
         this.table = new Table(
-            { head: ['', 'Status'.cyan, "Last message at".yellow, "Number of messages".magenta] }
+            { head: ['', 'Status'.cyan, "Last time co or message at".yellow, "Number of messages".magenta] }
         );
 
-        this.table.push(
-            { 'Fabrice': ['Online'.green, '2020-02-21 11:42', '3'] },
-            { 'Laura': ['Offline'.red, '2020-02-21 11:48', '4'] }
-        );
     }
 
     initDB( dbHost, dbPort, dbLogin, dbPassword)
@@ -139,8 +135,7 @@ export class Users
 
     isValidLoginStr(login)
     {
-        if(String(login).length > 0 && String(login).length < 20) return true;
-        else return false;
+        return String(login).length > 0 && String(login).length < 20;
     }
 
     async fetchAllUsers()
@@ -157,14 +152,28 @@ export class Users
         });
     }
 
+    async updateUser (pDocUpData)
+    {
+        return this.localUsersDB.get(this.userID).then((doc) => {
+
+            for (const [key, value] of Object.entries(pDocUpData)) {
+                //console.log(`${key}: ${value}`);
+                doc[key] = value;
+            }
+            return this.localUsersDB.put(doc);
+
+        }).then(() => {
+            return this.localUsersDB.get(this.userID);
+        });
+    }
+
     async populateTable()
     {
         let tempTable = [];
 
         return this.fetchAllUsers().then( (result) => {
             result.rows.forEach( el => {
-                console.log(el)
-                var tempName = el.doc.name.cyan + ' (' + el.doc._id.red + ')';
+                let tempName = el.doc.name.cyan + ' (' + el.doc._id.red + ')';
                 let tempConnected = el.doc.connected ? 'Online'.green : 'Offline'.red ;
                 let temp = {};
                 temp[tempName] = [ tempConnected, el.doc.lastMessageTime, el.doc.nbMessage ];
