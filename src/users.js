@@ -9,6 +9,7 @@ export class Users
     localUsersDB;
     remoteUsersDB;
     userID;
+    userFullName;
 
     constructor( dbHost, dbPort, dbLogin, dbPassword )
     {
@@ -30,7 +31,7 @@ export class Users
             retry: true
         }).on('change', function (change) {
             // yo, something changed!
-            console.log('Yo, something changed !');
+           // console.log('Yo, something changed !');
         }).on('paused', function (info) {
             // replication was paused, usually because of a lost connection
         }).on('active', function (info) {
@@ -79,6 +80,7 @@ export class Users
             await this.createUser(login, fullName);
             console.clear();
             this.userID = login;
+            this.userFullName = fullName;
         }
         //On going connexion, need to find used login
         else
@@ -95,8 +97,7 @@ export class Users
             }
             while ( login === '' );
 
-            console.clear();
-            this.userID = login;
+           console.clear();
         }
     }
 
@@ -122,7 +123,9 @@ export class Users
     async checkUser(login)
     {
         return this.localUsersDB.get(login).then( (doc) => {
-            //console.log(doc);
+            console.log(doc);
+            this.userID = doc._id;
+            this.userFullName = doc.name;
             return true;
         }).catch( (err) => {
             if (err.error ==='not_found' || err.reason ==='missing') return false;
@@ -169,21 +172,25 @@ export class Users
 
     async populateTable()
     {
-        let tempTable = [];
+        let tempTable = [
+            [
+                '{white-fg}User{/}',
+                '{cyan-fg}Status{/}',
+                '{yellow-fg}Last time co or message at{/}',
+                '{magenta-fg}Number of messages{/}'
+            ]
+        ];
 
         return this.fetchAllUsers().then( (result) => {
             result.rows.forEach( el => {
-                let tempName = el.doc.name.cyan + ' (' + el.doc._id.red + ')';
-                let tempConnected = el.doc.connected ? 'Online'.green : 'Offline'.red ;
-                let temp = {};
-                temp[tempName] = [ tempConnected, el.doc.lastMessageTime, el.doc.nbMessage ];
-                this.table.push(temp);
+                let tempName = '{cyan-fg}'+el.doc.name+'{/}'+' ('+'{magenta-fg}'+el.doc._id+'{/}'+')';
+                let tempConnected = el.doc.connected ? '{green-fg}Online{/}' : '{red-fg}Offline{/}' ;
+                let tempNbMessage = '{white-fg}' + el.doc.nbMessage + '{/}';
+                let temp = [ tempName, tempConnected, el.doc.lastMessageTime, tempNbMessage ];
+                tempTable.push(temp);
             });
+            this.table = tempTable;
+            console.log(this.table);
         });
-    }
-
-    print()
-    {
-        console.log(this.table.toString());
     }
 }
