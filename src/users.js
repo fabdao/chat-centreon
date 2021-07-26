@@ -155,7 +155,7 @@ export class Users
 
     async updateUser (pDocUpData)
     {
-        return this.localUsersDB.get(this.userID).then((doc) => {
+        return await this.localUsersDB.get(this.userID).then((doc) => {
 
             for (const [key, value] of Object.entries(pDocUpData)) {
                 doc[key] = value;
@@ -175,10 +175,11 @@ export class Users
         });
     }
 
-    async incUserNbMessage ()
+    async incUserInfoMessage ()
     {
         return this.localUsersDB.get(this.userID).then((doc) => {
             doc.nbMessage++;
+            doc.lastMessageTime = new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })
             return this.localUsersDB.put(doc);
         }).then(() => {
             return this.localUsersDB.get(this.userID);

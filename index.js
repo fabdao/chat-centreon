@@ -1,5 +1,3 @@
-import process from 'process';
-
 import CONFIG from './config/backend.js';
 import askConfig from './src/askConfig.js';
 import { Users } from './src/users.js';
