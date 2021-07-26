@@ -11,8 +11,8 @@ Un serveur CouchDB a été mis en place pour faciliter l'execution du programme 
 L'interface graphique d'administration de CouchDB ( Fauxton ) est disponible à l'adresse suivante : 
 
 http://frozen-coffee.ddns.net:5984/_utils
-Login : CouchDB
-Password: centreon
+- Login : CouchDB
+- Password: centreon
 
 <b>Pré-requis :</b>
 - Un pc avec un OS linux ( ou éventuellement mac ). Disclaimer : Une sous-routine a été installée afin de faire exploser toute machine éxecutant ce code sous Windaube...
