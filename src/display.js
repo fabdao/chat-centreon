@@ -88,12 +88,14 @@ export class Display
 
         this.inputBar.on('submit', (text) => {
             pMessages.sendMessage(pUsers.userID, pUsers.userFullName, text).then(() => {
-                let tempName = '{cyan-fg}'+pUsers.userFullName+'{/}'+' ('+'{magenta-fg}'+pUsers.userID+'{/}'+')';
-                let tempMessageTime = '{yellow-fg}' + new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }) + '{/}';
-                let tempMessageTxt = '{white-fg}' + text + '{/}';
-                this.chatBox.insertBottom(tempName + ' @ ' + tempMessageTime + ' : ' + tempMessageTxt);
-                this.inputBar.clearValue();
-                this.screen.render();
+                pUsers.incUserNbMessage().then(() => {
+                    let tempName = '{cyan-fg}'+pUsers.userFullName+'{/}'+' ('+'{magenta-fg}'+pUsers.userID+'{/}'+')';
+                    let tempMessageTime = '{yellow-fg}' + new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }) + '{/}';
+                    let tempMessageTxt = '{white-fg}' + text + '{/}';
+                    this.chatBox.insertBottom(tempName + ' @ ' + tempMessageTime + ' : ' + tempMessageTxt);
+                    this.inputBar.clearValue();
+                    this.screen.render();
+                });
             });
         });
 
@@ -119,6 +121,7 @@ export class Display
 
     updateMessageBox(pData)
     {
+        this.chatBox.setContent('');
         pData.forEach( el => {
             this.chatBox.insertBottom(el);
         });

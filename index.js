@@ -18,9 +18,9 @@ global.dbPassword = CONFIG.dbPassword;
 askConfig();
 
 // Init Super class
-let users = new Users( global.dbHost, global.dbPort, global.dbLogin, global.dbPassword );
-let messages = new Messages( global.dbHost, global.dbPort, global.dbLogin, global.dbPassword );
 let display = new Display();
+let users = new Users( global.dbHost, global.dbPort, global.dbLogin, global.dbPassword, display );
+let messages = new Messages( global.dbHost, global.dbPort, global.dbLogin, global.dbPassword, display );
 
 //@todo
 //import fs from 'fs';

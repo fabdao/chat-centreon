@@ -1,7 +1,7 @@
-import Table from 'cli-table3';
 import colors from 'colors';
 import PouchDB from 'pouchdb';
 import readlineSync from 'readline-sync';
+
 
 export class Users
 {
@@ -11,17 +11,12 @@ export class Users
     userID;
     userFullName;
 
-    constructor( dbHost, dbPort, dbLogin, dbPassword )
+    constructor( dbHost, dbPort, dbLogin, dbPassword, pDisplay )
     {
-        this.initDB( dbHost, dbPort, dbLogin, dbPassword );
-
-        this.table = new Table(
-            { head: ['', 'Status'.cyan, "Last time co or message at".yellow, "Number of messages".magenta] }
-        );
-
+        this.initDB( dbHost, dbPort, dbLogin, dbPassword, pDisplay );
     }
 
-    initDB( dbHost, dbPort, dbLogin, dbPassword)
+    initDB( dbHost, dbPort, dbLogin, dbPassword, pDisplay)
     {
         this.localUsersDB = new PouchDB('users');
         this.remoteUsersDB = new PouchDB(dbHost +':'+ dbPort + '/users', {auth : {username : dbLogin, password : dbPassword}});
@@ -29,9 +24,12 @@ export class Users
         this.localUsersDB.sync(this.remoteUsersDB, {
             live: true,
             retry: true
-        }).on('change', function (change) {
-            // yo, something changed!
-           // console.log('Yo, something changed !');
+        }).on('change', (change) => {
+            this.populateTable().then(() => {
+                //Display the new user tab...
+                pDisplay.updateUserBox(this.table);
+            });
+
         }).on('paused', function (info) {
             // replication was paused, usually because of a lost connection
         }).on('active', function (info) {
@@ -123,7 +121,7 @@ export class Users
     async checkUser(login)
     {
         return this.localUsersDB.get(login).then( (doc) => {
-            console.log(doc);
+            //console.log(doc);
             this.userID = doc._id;
             this.userFullName = doc.name;
             return true;
@@ -160,11 +158,20 @@ export class Users
         return this.localUsersDB.get(this.userID).then((doc) => {
 
             for (const [key, value] of Object.entries(pDocUpData)) {
-                //console.log(`${key}: ${value}`);
                 doc[key] = value;
             }
             return this.localUsersDB.put(doc);
 
+        }).then(() => {
+            return this.localUsersDB.get(this.userID);
+        });
+    }
+
+    async incUserNbMessage ()
+    {
+        return this.localUsersDB.get(this.userID).then((doc) => {
+            doc.nbMessage++;
+            return this.localUsersDB.put(doc);
         }).then(() => {
             return this.localUsersDB.get(this.userID);
         });
@@ -190,7 +197,7 @@ export class Users
                 tempTable.push(temp);
             });
             this.table = tempTable;
-            console.log(this.table);
+            //console.log(this.table);
         });
     }
 }
