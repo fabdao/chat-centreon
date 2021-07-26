@@ -167,6 +167,14 @@ export class Users
         });
     }
 
+    async logoutUser ()
+    {
+        return await this.remoteUsersDB.get(this.userID).then((doc) => {
+            doc.connected = false;
+            return this.remoteUsersDB.put(doc);
+        });
+    }
+
     async incUserNbMessage ()
     {
         return this.localUsersDB.get(this.userID).then((doc) => {

@@ -105,9 +105,7 @@ export class Display
 
         // Register logout process when the process exit with escape, ctrl+D or else....
         this.screen.key(['escape', 'C-c'], (ch, key) => {
-            pUsers.updateUser({
-                connected : false
-            }).then(() => {
+            pUsers.logoutUser().then(() => {
                 process.exit(0);
             });
         });
