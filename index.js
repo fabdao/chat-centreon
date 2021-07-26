@@ -3,6 +3,7 @@ import askConfig from './src/askConfig.js';
 import { Users } from './src/users.js';
 import { Messages } from './src/messages.js';
 import { Display } from './src/display.js';
+import { Logs } from './src/logs.js';
 
 console.clear();
 
@@ -17,12 +18,9 @@ askConfig();
 
 // Init Super class
 let display = new Display();
+let logs = new Logs();
 let users = new Users( global.dbHost, global.dbPort, global.dbLogin, global.dbPassword, display );
 let messages = new Messages( global.dbHost, global.dbPort, global.dbLogin, global.dbPassword, display );
-
-//@todo
-//import fs from 'fs';
-//fs.writeFileSync('./logs/connexion123', new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }) +'\n');
 
 //Login process
 users.login().then(() => {
@@ -35,6 +33,10 @@ users.login().then(() => {
         connected : true,
         "lastMessageTime" : new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })
     }).then( () => {
+
+        //Logs Users connection
+        logs.logUserConnection(users.userID);
+
         //Hydrate the users table see who is connected or late to the daily scrum...
         users.populateTable().then(() => {
             messages.populateTable().then(() => {
@@ -44,6 +46,7 @@ users.login().then(() => {
                 display.updateMessageBox(messages.table);
             });
         });
+
     });
 });
 
